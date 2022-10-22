@@ -364,6 +364,20 @@ static const struct of_device_id imx_esdhc_dt_ids[] = {
 };
 MODULE_DEVICE_TABLE(of, imx_esdhc_dt_ids);
 
+static struct mmc_host *wifi_mmc_host;
+void wifi_card_detect(bool on)
+{
+	WARN_ON(!wifi_mmc_host);
+	if (on) {
+		mmc_detect_change(wifi_mmc_host, 0);
+	} else {
+		if (wifi_mmc_host->card) {
+			mmc_sdio_force_remove(wifi_mmc_host);
+		}
+	}
+}
+EXPORT_SYMBOL(wifi_card_detect);
+
 static inline int is_imx25_esdhc(struct pltfm_imx_data *data)
 {
 	return data->socdata == &esdhc_imx25_data;
@@ -1606,6 +1620,12 @@ sdhci_esdhc_imx_probe_dt(struct platform_device *pdev,
 
 	if (mmc_gpio_get_cd(host->mmc) >= 0)
 		host->quirks &= ~SDHCI_QUIRK_BROKEN_CARD_DETECTION;
+
+	if (of_get_property(np, "wifi-host", NULL)) {
+		wifi_mmc_host = host->mmc;
+		host->quirks2 |= SDHCI_QUIRK2_SDIO_IRQ_THREAD;
+		dev_info(mmc_dev(host->mmc), "assigned as wifi host\n");
+	}
 
 	return 0;
 }

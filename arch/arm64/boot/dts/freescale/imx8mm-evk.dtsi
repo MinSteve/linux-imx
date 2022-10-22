@@ -193,6 +193,35 @@
 			};
 		};
 	};
+
+	reg_sd1_vmmc: sd1_regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "WLAN_EN";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio1 15 GPIO_ACTIVE_HIGH>;
+		off-on-delay-us = <20000>;
+		startup-delay-us = <100>;
+		enable-active-high;
+	};
+
+	regulators {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+	
+		reg_m2_power_pad: regulator-m2-power-pad {
+			compatible = "regulator-fixed";
+			regulator-name = "M2_POWER_PAD";
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+			enable-active-high;
+			startup-delay-us = <70000>;
+			gpio = <&gpio2 11 GPIO_ACTIVE_HIGH>;
+			regulator-always-on;
+			regulator-boot-on;
+		};	
+	};
 };
 
 &A53_0 {
